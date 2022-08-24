@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
+from typing import Optional
+from pydantic import BaseModel, Field
 from uuid import UUID
 from books import books
 
@@ -8,10 +9,12 @@ app = FastAPI()
 
 class Book(BaseModel):
     id: UUID
-    title: str
-    author: str
-    description: str
-    rating: int
+    title: str = Field(min_length=2)
+    author: Optional[str]
+    description: str = Field(title="description about the book",
+                             min_length=5,
+                             max_length=100)
+    rating: int = Field(gt=-1, lt=101)
 
 
 BOOKS = []
@@ -30,4 +33,4 @@ async def get_one_book(author):
 @app.post('/')
 async def create_book(book: Book):
     BOOKS.append(book)
-    return book
+    return BOOKS
